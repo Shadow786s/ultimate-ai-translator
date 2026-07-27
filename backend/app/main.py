@@ -1,5 +1,7 @@
 from contextlib import asynccontextmanager
 
+from app.api.upload import router as upload_router
+
 from fastapi import FastAPI
 
 from fastapi.middleware.cors import (
@@ -54,6 +56,7 @@ app.add_middleware(
     ]
 )
 
+app.include_router(upload_router)
 
 @app.get("/")
 async def root():
