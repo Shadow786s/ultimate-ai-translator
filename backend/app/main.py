@@ -1,73 +1,53 @@
 from contextlib import asynccontextmanager
 
-from app.api.upload import router as upload_router
-
 from fastapi import FastAPI
 
-from fastapi.middleware.cors import (
-    CORSMiddleware
-)
+from fastapi.middleware.cors import CORSMiddleware
 
-from .database import (
-    init_db
-)
+from app.api.upload import router as upload_router
 
 
 @asynccontextmanager
-async def lifespan(
-    app: FastAPI
-):
-
-    await init_db()
+async def lifespan(app: FastAPI):
 
     yield
 
 
 app = FastAPI(
 
-    title=
-    "Ultimate AI Translator API",
+    title="Ultimate AI Subtitle Translator",
 
-    version=
-    "1.0.0",
+    version="1.0.0",
 
-    lifespan=
-    lifespan
+    lifespan=lifespan
+
 )
-
 
 app.add_middleware(
 
     CORSMiddleware,
 
-    allow_origins=[
-        "*"
-    ],
+    allow_origins=["*"],
 
-    allow_credentials=
-    True,
+    allow_credentials=True,
 
-    allow_methods=[
-        "*"
-    ],
+    allow_methods=["*"],
 
-    allow_headers=[
-        "*"
-    ]
+    allow_headers=["*"]
+
 )
 
 app.include_router(upload_router)
+
 
 @app.get("/")
 async def root():
 
     return {
 
-        "name":
-        "Ultimate AI Translator",
+        "name": "Ultimate AI Subtitle Translator",
 
-        "status":
-        "online"
+        "status": "online"
 
     }
 
@@ -77,21 +57,6 @@ async def health():
 
     return {
 
-        "status":
-        "healthy"
-
-    }
-
-
-@app.get("/database-status")
-async def database_status():
-
-    return {
-
-        "database":
-        "initialized",
-
-        "status":
-        "ready"
+        "status": "healthy"
 
     }
