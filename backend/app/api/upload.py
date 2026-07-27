@@ -1,6 +1,13 @@
-from fastapi import APIRouter, UploadFile, File, HTTPException
-from uuid import uuid4
-from app.services.srt_service import parse_srt
+from fastapi import (
+    APIRouter,
+    UploadFile,
+    File,
+    HTTPException
+)
+
+from app.services.parser import (
+    SRTParser
+)
 
 router = APIRouter(
     prefix="/upload",
@@ -14,52 +21,48 @@ async def upload_srt(
 ):
 
     if not file.filename.lower().endswith(".srt"):
+
         raise HTTPException(
             status_code=400,
-            detail="Only SRT files are allowed."
+            detail="Only SRT files are supported."
         )
 
-    content = await file.read()
+    data = await file.read()
+
+    if len(data) == 0:
+
+        raise HTTPException(
+            status_code=400,
+            detail="Empty file."
+        )
 
     try:
 
-        text = content.decode("utf-8")
+        text = SRTParser.decode_file(data)
 
-    except UnicodeDecodeError:
+    except Exception:
 
-        try:
+        raise HTTPException(
+            status_code=400,
+            detail="Subtitle encoding not supported."
+        )
 
-            text = content.decode("utf-16")
-
-        except:
-
-            try:
-
-                text = content.decode("latin-1")
-
-            except:
-
-                raise HTTPException(
-                    status_code=400,
-                    detail="Unable to decode subtitle."
-                )
-
-    subtitles = parse_srt(text)
+    subtitles = SRTParser.parse(text)
 
     if len(subtitles) == 0:
 
         raise HTTPException(
             status_code=400,
-            detail="No subtitles found."
+            detail="Invalid SRT file."
         )
 
     return {
 
-        "job_id": str(uuid4()),
+        "success": True,
 
         "filename": file.filename,
 
-        "total_subtitles": len(subtitles),
+        "subtitle_count": len(subtitles),
 
         "status": "uploaded"
 
