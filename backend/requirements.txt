@@ -20,8 +20,6 @@ httpx==0.28.1
 srt==3.5.3
 langdetect==1.0.9
 
-orjson==3.11.2
-
 tenacity==9.1.2
 
 loguru==0.7.3
